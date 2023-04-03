@@ -14,7 +14,7 @@ class _SolverPageState extends State<SolverPage> {
       ),
       // ignore: prefer_const_constructors
       body: Center(
-        child: Text("No implementation!"),
+        child: const Text("No implementation!"),
       ),
     );
   }
