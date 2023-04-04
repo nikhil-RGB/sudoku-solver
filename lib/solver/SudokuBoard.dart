@@ -1,9 +1,9 @@
 import 'package:logger/logger.dart';
-import 'package:sudoku_solver/util/IllegalInitializationException.dart';
+import 'package:sudoku_solver/util/exceptions.dart';
 
 class SudokuBoard {
   List<List<List<int>>> grid;
-  List<int> current_pos = [0, 0, 0];
+
   //initialize board with pre-existing config
   SudokuBoard.fromConfig({required this.grid}) {
     if ((grid.length != 3) ||
@@ -159,5 +159,34 @@ class SudokuBoard {
       }
     }
     return true;
+  }
+
+//This function clones the SudokuBoard object
+  SudokuBoard clone() {
+    SudokuBoard result = SudokuBoard.empty();
+    List<List<List<int>>> clgr = result.grid;
+    for (int i = 0; i < 3; ++i) {
+      for (int j = 0; j < 3; ++j) {
+        for (int k = 0; k < 9; ++k) {
+          // ignore: unnecessary_this
+          clgr[i][j][k] = this.grid[i][j][k];
+        }
+      }
+    }
+    return result;
+  }
+
+  //This function solves the board at the first empty position found via calculateEmptyCoords(),
+  //and returns all solution Boards found at that level.
+  List<SudokuBoard> stepInto() {
+    List<SudokuBoard> solutions = List.empty(growable: true);
+    List<int> coords = calculateEmptyCoords();
+    List<int> sols = possibleSolutionsAt(coords[0], coords[1], coords[2]);
+    for (int soln in sols) {
+      SudokuBoard obj = clone();
+      obj.grid[coords[0]][coords[1]][coords[2]] = soln;
+      solutions.add(obj);
+    }
+    return solutions;
   }
 }
