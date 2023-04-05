@@ -1,4 +1,4 @@
-import 'package:logger/logger.dart';
+// ignore: file_names
 import 'package:sudoku_solver/util/exceptions.dart';
 
 class SudokuBoard {
