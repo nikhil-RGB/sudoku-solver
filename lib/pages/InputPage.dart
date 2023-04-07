@@ -9,7 +9,7 @@ class InputPage extends StatefulWidget {
   static List<int> control_coords = [
     0,
     0,
-    0
+    0,
   ]; //currently active control_coords in sudoku board.
   @override
   State<InputPage> createState() => _InputPageState();
@@ -32,6 +32,10 @@ class _InputPageState extends State<InputPage> {
               child: constructBoard(),
             ),
           ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.03,
+          ),
+          numberPanel(),
         ],
       ),
     );
@@ -57,6 +61,34 @@ class _InputPageState extends State<InputPage> {
         List<int> coords = translateCoords(region, index);
         return SudokuCell(i: coords[0], j: coords[1], k: coords[2]);
       }),
+    );
+  }
+
+  SizedBox numberPanel() {
+    List<Widget> buttons = List.generate(9, (index) {
+      return ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.cyan,
+          ),
+          onPressed: () {},
+          child: Text((++index).toString()));
+    });
+    // buttons.insert(
+    //     0,
+    //     ElevatedButton.icon(
+    //       onPressed: () {},
+    //       icon: const Icon(Icons.undo_outlined),
+    //       label: const Text("Undo"),
+    //     ));
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.1,
+      child: GridView.extent(
+        shrinkWrap: true,
+        maxCrossAxisExtent: 50.0,
+        mainAxisSpacing: 2,
+        crossAxisSpacing: 2,
+        children: buttons,
+      ),
     );
   }
 }
