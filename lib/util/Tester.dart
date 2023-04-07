@@ -59,7 +59,7 @@ class Tester {
   ];
 
   static void main() async {
-    SudokuBoard board = SudokuBoard.fromConfig(grid: test_board2);
+    SudokuBoard board = SudokuBoard.fromConfig(grid: test_board);
     printBoard(board.grid);
     Logger().w("Soluchan time: ");
     SudokuBoard soln =
