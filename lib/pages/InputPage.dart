@@ -66,13 +66,38 @@ class _InputPageState extends State<InputPage> {
 
   SizedBox numberPanel() {
     List<Widget> buttons = List.generate(9, (index) {
-      return ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.cyan,
-          ),
-          onPressed: () {},
-          child: Text((++index).toString()));
+      return InkWell(
+        onTap: () {},
+        child: Ink(
+            width: 40,
+            height: 90,
+            decoration: const BoxDecoration(
+              color: Colors.cyan,
+              borderRadius: BorderRadius.all(
+                Radius.circular(3.0),
+              ),
+            ),
+            child: Center(
+                child: Text(
+              (++index).toString(),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+            ))),
+      );
     });
+
+    Widget c = InkWell(
+      child: Ink(
+          width: 40,
+          height: 90,
+          decoration: const BoxDecoration(
+            color: Colors.cyan,
+            borderRadius: BorderRadius.all(
+              Radius.circular(3.0),
+            ),
+          ),
+          child: const Center(child: Icon(Icons.undo_outlined))),
+    );
+    buttons.add(c);
     // buttons.insert(
     //     0,
     //     ElevatedButton.icon(
@@ -81,12 +106,14 @@ class _InputPageState extends State<InputPage> {
     //       label: const Text("Undo"),
     //     ));
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.1,
-      child: GridView.extent(
+      height: MediaQuery.of(context).size.height * 0.15,
+      width: MediaQuery.of(context).size.width * 0.4,
+      child: GridView.count(
         shrinkWrap: true,
-        maxCrossAxisExtent: 50.0,
-        mainAxisSpacing: 2,
-        crossAxisSpacing: 2,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: 5,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
         children: buttons,
       ),
     );
