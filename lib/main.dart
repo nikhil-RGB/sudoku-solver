@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sudoku_solver/pages/InputPage.dart';
 import 'package:sudoku_solver/pages/SolverPage.dart';
 
+final GlobalKey<InputPageState> inputPageKey = GlobalKey<InputPageState>();
 void main() {
   runApp(const MyApp());
 }
@@ -26,7 +27,9 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: InputPage(),
+      home: InputPage(
+        key: inputPageKey,
+      ),
     );
   }
 }

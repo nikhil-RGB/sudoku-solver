@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sudoku_solver/main.dart';
 import 'package:sudoku_solver/solver/SudokuBoard.dart';
 import 'package:sudoku_solver/util/Tester.dart';
 
@@ -6,16 +7,19 @@ class InputPage extends StatefulWidget {
   //An empty Sudoku Board
   // static SudokuBoard control = SudokuBoard.empty(); //empty sudoku board
   static SudokuBoard control = SudokuBoard.fromConfig(grid: Tester.test_board);
+
+  InputPage({required super.key});
   static List<int> control_coords = [
     0,
     0,
     0,
   ]; //currently active control_coords in sudoku board.
   @override
-  State<InputPage> createState() => _InputPageState();
+  // ignore: no_logic_in_create_state
+  State<InputPage> createState() => InputPageState();
 }
 
-class _InputPageState extends State<InputPage> {
+class InputPageState extends State<InputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +37,7 @@ class _InputPageState extends State<InputPage> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.03,
+            height: MediaQuery.of(context).size.height * 0.01,
           ),
           numberPanel(),
         ],
@@ -69,8 +73,8 @@ class _InputPageState extends State<InputPage> {
       return InkWell(
         onTap: () {},
         child: Ink(
-            width: 40,
-            height: 90,
+            width: 90,
+            height: 140,
             decoration: const BoxDecoration(
               color: Colors.cyan,
               borderRadius: BorderRadius.all(
@@ -80,15 +84,15 @@ class _InputPageState extends State<InputPage> {
             child: Center(
                 child: Text(
               (++index).toString(),
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
             ))),
       );
     });
 
     Widget c = InkWell(
       child: Ink(
-          width: 40,
-          height: 90,
+          width: 90,
+          height: 140,
           decoration: const BoxDecoration(
             color: Colors.cyan,
             borderRadius: BorderRadius.all(
@@ -106,8 +110,8 @@ class _InputPageState extends State<InputPage> {
     //       label: const Text("Undo"),
     //     ));
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.15,
-      width: MediaQuery.of(context).size.width * 0.4,
+      height: MediaQuery.of(context).size.height * 0.165,
+      width: MediaQuery.of(context).size.width * 0.45,
       child: GridView.count(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -127,6 +131,7 @@ class SudokuCell extends StatefulWidget {
   int j;
   int k;
   SudokuCell({super.key, required this.i, required this.j, required this.k});
+
   @override
   State<SudokuCell> createState() => _SudokuCellState();
 }
@@ -137,8 +142,17 @@ class _SudokuCellState extends State<SudokuCell> {
     int number = InputPage.control.grid[widget.i][widget.j][widget.k];
     return ElevatedButton(
       onPressed: () {
-        InputPage.control_coords = [widget.i, widget.j, widget.k];
+        inputPageKey.currentState!.setState(() {
+          InputPage.control_coords = [widget.i, widget.j, widget.k];
+        });
       },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: ((InputPage.control_coords[0] == widget.i) &&
+                (InputPage.control_coords[1] == widget.j) &&
+                (InputPage.control_coords[2] == widget.k))
+            ? Colors.cyan
+            : null,
+      ),
       child: Text((number != 0) ? number.toString() : ""),
     );
   }
