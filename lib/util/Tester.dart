@@ -4,7 +4,7 @@ import 'package:sudoku_solver/solver/Solver.dart';
 import 'package:sudoku_solver/solver/SudokuBoard.dart';
 
 class Tester {
-  static const List<List<List<int>>> test_board = [
+  static List<List<List<int>>> test_board = [
     [
       [5, 3, 0, 6, 0, 0, 0, 9, 8],
       [0, 7, 0, 1, 9, 5, 0, 0, 0],
@@ -22,7 +22,7 @@ class Tester {
     ],
   ];
 
-  static const List<List<List<int>>> test_board1 = [
+  static List<List<List<int>>> test_board1 = [
     [
       [4, 0, 6, 0, 0, 8, 0, 0, 0],
       [0, 0, 7, 0, 9, 0, 2, 8, 0],
@@ -40,7 +40,7 @@ class Tester {
     ],
   ];
 
-  static const List<List<List<int>>> test_board2 = [
+  static List<List<List<int>>> test_board2 = [
     [
       [0, 0, 7, 2, 0, 0, 0, 0, 0],
       [4, 9, 1, 0, 6, 0, 0, 0, 7],

@@ -1,14 +1,19 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sudoku_solver/main.dart';
+import 'package:sudoku_solver/pages/SolverPage.dart';
+import 'package:sudoku_solver/solver/Solver.dart';
 import 'package:sudoku_solver/solver/SudokuBoard.dart';
 import 'package:sudoku_solver/util/Tester.dart';
 
+SudokuBoard control = SudokuBoard.fromConfig(grid: Tester.test_board);
+
+// ignore: must_be_immutable
 class InputPage extends StatefulWidget {
   //An empty Sudoku Board
   // static SudokuBoard control = SudokuBoard.empty(); //empty sudoku board
-  static SudokuBoard control = SudokuBoard.fromConfig(grid: Tester.test_board);
 
-  InputPage({required super.key});
+  const InputPage({required super.key});
   static List<int> control_coords = [
     0,
     0,
@@ -20,6 +25,7 @@ class InputPage extends StatefulWidget {
 }
 
 class InputPageState extends State<InputPage> {
+  bool solving = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +48,27 @@ class InputPageState extends State<InputPage> {
           numberPanel(),
         ],
       ),
+      floatingActionButton: (!solving)
+          ? FloatingActionButton(
+              onPressed: () async {
+                setState(() {
+                  solving = true;
+                });
+                SudokuBoard soln = await compute<SudokuBoard, SudokuBoard>(
+                    Solver.depthFirstSolve, control);
+                setState(() {
+                  solving = false;
+                });
+                //Navigate to the solution page
+                // ignore: use_build_context_synchronously
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: ((context) => SolverPage(solution: soln))));
+              },
+              child: const Icon(Icons.fast_forward_outlined),
+            )
+          : const CircularProgressIndicator(),
     );
   }
 
@@ -56,7 +83,9 @@ class InputPageState extends State<InputPage> {
     );
   }
 
-  GridView constructRegion({required int region}) {
+  GridView constructRegion({
+    required int region,
+  }) {
     return GridView.count(
       crossAxisCount: 3,
       crossAxisSpacing: 2,
@@ -69,27 +98,54 @@ class InputPageState extends State<InputPage> {
   }
 
   SizedBox numberPanel() {
+    //coords for currently selected grid box
+    int i = InputPage.control_coords[0];
+    int j = InputPage.control_coords[1];
+    int k = InputPage.control_coords[2];
+    List<int> activeNums = control.possibleSolutionsAt(
+      i,
+      j,
+      k,
+    );
     List<Widget> buttons = List.generate(9, (index) {
+      int number = ++index; //current number for panel
+      //whether current button on panel should be enabled or not
+      bool enabled = activeNums.contains(number);
       return InkWell(
-        onTap: () {},
+        enableFeedback: enabled,
+        onTap: () {
+          if (!enabled) {
+            return;
+          }
+
+          //set number in main sudoku board here.
+          setState(() {
+            control.grid[i][j][k] = number;
+          });
+        },
         child: Ink(
             width: 90,
             height: 140,
-            decoration: const BoxDecoration(
-              color: Colors.cyan,
-              borderRadius: BorderRadius.all(
+            decoration: BoxDecoration(
+              color: (enabled) ? Colors.cyan : Colors.grey,
+              borderRadius: const BorderRadius.all(
                 Radius.circular(3.0),
               ),
             ),
             child: Center(
                 child: Text(
-              (++index).toString(),
+              number.toString(),
               style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
             ))),
       );
     });
 
     Widget c = InkWell(
+      onTap: () {
+        setState(() {
+          control.grid[i][j][k] = 0;
+        });
+      },
       child: Ink(
           width: 90,
           height: 140,
@@ -99,7 +155,7 @@ class InputPageState extends State<InputPage> {
               Radius.circular(3.0),
             ),
           ),
-          child: const Center(child: Icon(Icons.undo_outlined))),
+          child: const Center(child: Icon(Icons.delete_outlined))),
     );
     buttons.add(c);
     // buttons.insert(
@@ -139,7 +195,7 @@ class SudokuCell extends StatefulWidget {
 class _SudokuCellState extends State<SudokuCell> {
   @override
   Widget build(BuildContext context) {
-    int number = InputPage.control.grid[widget.i][widget.j][widget.k];
+    int number = control.grid[widget.i][widget.j][widget.k];
     return ElevatedButton(
       onPressed: () {
         inputPageKey.currentState!.setState(() {
