@@ -32,18 +32,18 @@ class InputPageState extends State<InputPage> {
       backgroundColor: Colors.black,
       body: Column(
         children: [
+          constructAppBar(),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.2,
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.6,
+            height: MediaQuery.of(context).size.height * 0.466,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.084,
+                  right: MediaQuery.of(context).size.width * 0.084),
               child: constructBoard(),
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.01,
+            height: MediaQuery.of(context).size.height * 0.035,
           ),
           numberPanel(),
         ],
@@ -72,6 +72,7 @@ class InputPageState extends State<InputPage> {
     );
   }
 
+  //This function creates the entire sudoku board
   GridView constructBoard() {
     return GridView.count(
       crossAxisCount: 3,
@@ -83,6 +84,7 @@ class InputPageState extends State<InputPage> {
     );
   }
 
+//this function creates and returns a sub-region for the input sudoku board
   GridView constructRegion({
     required int region,
   }) {
@@ -97,7 +99,8 @@ class InputPageState extends State<InputPage> {
     );
   }
 
-  SizedBox numberPanel() {
+  //this function creates the number input panel for the sudoku board
+  Widget numberPanel() {
     //coords for currently selected grid box
     int i = InputPage.control_coords[0];
     int j = InputPage.control_coords[1];
@@ -124,12 +127,10 @@ class InputPageState extends State<InputPage> {
           });
         },
         child: Ink(
-            width: 90,
-            height: 140,
             decoration: BoxDecoration(
-              color: (enabled) ? Colors.cyan : Colors.grey,
+              color: (enabled) ? const Color(0xFFFFB59C) : Colors.grey,
               borderRadius: const BorderRadius.all(
-                Radius.circular(3.0),
+                Radius.circular(50.0),
               ),
             ),
             child: Center(
@@ -147,12 +148,10 @@ class InputPageState extends State<InputPage> {
         });
       },
       child: Ink(
-          width: 90,
-          height: 140,
           decoration: const BoxDecoration(
-            color: Colors.cyan,
+            color: Color(0xFFFFB59C),
             borderRadius: BorderRadius.all(
-              Radius.circular(3.0),
+              Radius.circular(50.0),
             ),
           ),
           child: const Center(child: Icon(Icons.delete_outlined))),
@@ -165,16 +164,80 @@ class InputPageState extends State<InputPage> {
     //       icon: const Icon(Icons.undo_outlined),
     //       label: const Text("Undo"),
     //     ));
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.165,
-      width: MediaQuery.of(context).size.width * 0.45,
+    return Container(
+      // decoration: BoxDecoration(
+      //   color: Colors.white,
+      // ),
+      height: MediaQuery.of(context).size.height * 0.23,
+      width: MediaQuery.of(context).size.width * 0.8,
       child: GridView.count(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 5,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
+        mainAxisSpacing: MediaQuery.of(context).size.width * 0.03,
+        crossAxisSpacing: MediaQuery.of(context).size.width * 0.03,
         children: buttons,
+      ),
+    );
+  }
+
+  Widget constructAppBar() {
+    return Container(
+      margin: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height * 0.04,
+          bottom: MediaQuery.of(context).size.height * 0.04),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.arrow_back),
+            color: const Color(0xFF9CFFC9),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.22,
+          ),
+          RichText(
+            textAlign: TextAlign.center,
+            text: const TextSpan(children: [
+              TextSpan(
+                text: "sudoku",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  letterSpacing: 3,
+                  color: Color(0xFF9CFFC9),
+                ),
+              ),
+              TextSpan(
+                text: ".",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  letterSpacing: 3,
+                  color: Color(0xFFFFB59C),
+                ),
+              ),
+              TextSpan(
+                text: "solver",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  letterSpacing: 3,
+                  color: Color(0xFF9CFFC9),
+                ),
+              ),
+            ]),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.22,
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.restart_alt_outlined),
+            color: const Color(0xFFFFB59C),
+          ),
+        ],
       ),
     );
   }
@@ -203,13 +266,19 @@ class _SudokuCellState extends State<SudokuCell> {
         });
       },
       style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.black,
         backgroundColor: ((InputPage.control_coords[0] == widget.i) &&
                 (InputPage.control_coords[1] == widget.j) &&
                 (InputPage.control_coords[2] == widget.k))
-            ? Colors.cyan
-            : null,
+            ? const Color(0xFFFFB59C)
+            : const Color(0xFF9CFFC9),
       ),
-      child: Text((number != 0) ? number.toString() : ""),
+      child: Center(
+        child: Text(
+          (number != 0) ? number.toString() : "",
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+      ),
     );
   }
 }
