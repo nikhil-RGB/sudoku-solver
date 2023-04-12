@@ -1,12 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sudoku_solver/main.dart';
 import 'package:sudoku_solver/pages/SolverPage.dart';
 import 'package:sudoku_solver/solver/Solver.dart';
 import 'package:sudoku_solver/solver/SudokuBoard.dart';
-import 'package:sudoku_solver/util/Tester.dart';
 
-SudokuBoard control = SudokuBoard.fromConfig(grid: Tester.test_board);
+SudokuBoard control = SudokuBoard.empty();
 
 // ignore: must_be_immutable
 class InputPage extends StatefulWidget {
@@ -14,6 +16,7 @@ class InputPage extends StatefulWidget {
   // static SudokuBoard control = SudokuBoard.empty(); //empty sudoku board
 
   const InputPage({required super.key});
+  // ignore: non_constant_identifier_names
   static List<int> control_coords = [
     0,
     0,
@@ -32,46 +35,90 @@ class InputPageState extends State<InputPage> {
       backgroundColor: Colors.black,
       body: Column(
         children: [
+          constructAppBar(),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.2,
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.6,
+            height: MediaQuery.of(context).size.height * 0.466,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.only(
+                left: MediaQuery.of(context).size.width * 0.084,
+                right: MediaQuery.of(context).size.width * 0.084,
+              ),
               child: constructBoard(),
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.01,
+            height: MediaQuery.of(context).size.height * 0.035,
           ),
           numberPanel(),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.025,
+          ),
+          (!solving)
+              ? submitButton(
+                  bg: const Color(0xFF9CFFC9),
+                  onPressed: () async {
+                    setState(() {
+                      solving = true;
+                    });
+                    SudokuBoard soln = await compute<SudokuBoard, SudokuBoard>(
+                        Solver.depthFirstSolve, control);
+
+                    setState(() {
+                      solving = false;
+                    });
+                    if (!soln.isBoardFilled()) {
+                      // ignore: use_build_context_synchronously
+                      openInfoDialog(
+                          info_title: "Oops!",
+                          details:
+                              "The given Sudoku Board does not have any valid solutions- Please check the inputted numbers and try again.",
+                          context: context);
+                      return;
+                    }
+                    //Navigate to the solution page
+                    // ignore: use_build_context_synchronously
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: ((context) => SolverPage(
+                                  solution: soln,
+                                  ogBoard: control,
+                                ))));
+                  },
+                  text: "Solve")
+              : const CircularProgressIndicator(
+                  color: Color(0xFF9CFFC9),
+                ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.04,
+          ),
         ],
       ),
-      floatingActionButton: (!solving)
-          ? FloatingActionButton(
-              onPressed: () async {
-                setState(() {
-                  solving = true;
-                });
-                SudokuBoard soln = await compute<SudokuBoard, SudokuBoard>(
-                    Solver.depthFirstSolve, control);
-                setState(() {
-                  solving = false;
-                });
-                //Navigate to the solution page
-                // ignore: use_build_context_synchronously
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: ((context) => SolverPage(solution: soln))));
-              },
-              child: const Icon(Icons.fast_forward_outlined),
-            )
-          : const CircularProgressIndicator(),
+      // floatingActionButton: (!solving)
+      //     ? FloatingActionButton(
+      // onPressed: () async {
+      //   setState(() {
+      //     solving = true;
+      //   });
+      //   SudokuBoard soln = await compute<SudokuBoard, SudokuBoard>(
+      //       Solver.depthFirstSolve, control);
+      //   setState(() {
+      //     solving = false;
+      //   });
+      //           //Navigate to the solution page
+      //           // ignore: use_build_context_synchronously
+      //           Navigator.push(
+      //               context,
+      //               MaterialPageRoute(
+      //                   builder: ((context) => SolverPage(solution: soln))));
+      //         },
+      //         child: const Icon(Icons.fast_forward_outlined),
+      //       )
+      //     : const CircularProgressIndicator(),
     );
   }
 
+  //This function creates the entire sudoku board
   GridView constructBoard() {
     return GridView.count(
       crossAxisCount: 3,
@@ -83,6 +130,7 @@ class InputPageState extends State<InputPage> {
     );
   }
 
+//this function creates and returns a sub-region for the input sudoku board
   GridView constructRegion({
     required int region,
   }) {
@@ -97,7 +145,8 @@ class InputPageState extends State<InputPage> {
     );
   }
 
-  SizedBox numberPanel() {
+  //this function creates the number input panel for the sudoku board
+  Widget numberPanel() {
     //coords for currently selected grid box
     int i = InputPage.control_coords[0];
     int j = InputPage.control_coords[1];
@@ -124,12 +173,10 @@ class InputPageState extends State<InputPage> {
           });
         },
         child: Ink(
-            width: 90,
-            height: 140,
             decoration: BoxDecoration(
-              color: (enabled) ? Colors.cyan : Colors.grey,
+              color: (enabled) ? const Color(0xFFFFB59C) : Colors.grey,
               borderRadius: const BorderRadius.all(
-                Radius.circular(3.0),
+                Radius.circular(50.0),
               ),
             ),
             child: Center(
@@ -147,12 +194,10 @@ class InputPageState extends State<InputPage> {
         });
       },
       child: Ink(
-          width: 90,
-          height: 140,
           decoration: const BoxDecoration(
-            color: Colors.cyan,
+            color: Color(0xFFFFB59C),
             borderRadius: BorderRadius.all(
-              Radius.circular(3.0),
+              Radius.circular(50.0),
             ),
           ),
           child: const Center(child: Icon(Icons.delete_outlined))),
@@ -166,15 +211,86 @@ class InputPageState extends State<InputPage> {
     //       label: const Text("Undo"),
     //     ));
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.165,
-      width: MediaQuery.of(context).size.width * 0.45,
+      // decoration: BoxDecoration(
+      //   color: Colors.white,
+      // ),
+      height: MediaQuery.of(context).size.height * 0.23,
+      width: MediaQuery.of(context).size.width * 0.8,
       child: GridView.count(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 5,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
+        mainAxisSpacing: MediaQuery.of(context).size.width * 0.03,
+        crossAxisSpacing: MediaQuery.of(context).size.width * 0.03,
         children: buttons,
+      ),
+    );
+  }
+
+  Widget constructAppBar() {
+    return Container(
+      margin: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height * 0.04,
+          bottom: MediaQuery.of(context).size.height * 0.04),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back),
+            color: const Color(0xFF9CFFC9),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.15,
+          ),
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(children: [
+              TextSpan(
+                text: "sudoku",
+                style: GoogleFonts.josefinSans(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  letterSpacing: 3,
+                  color: const Color(0xFF9CFFC9),
+                ),
+              ),
+              TextSpan(
+                text: ".",
+                style: GoogleFonts.josefinSans(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  letterSpacing: 3,
+                  color: const Color(0xFFFFB59C),
+                ),
+              ),
+              TextSpan(
+                text: "solver",
+                style: GoogleFonts.josefinSans(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  letterSpacing: 3,
+                  color: const Color(0xFF9CFFC9),
+                ),
+              ),
+            ]),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.15,
+          ),
+          IconButton(
+            onPressed: () {
+              setState(() {
+                InputPage.control_coords = [0, 0, 0];
+                control.formatBoard();
+              });
+            },
+            icon: const Icon(Icons.restart_alt_outlined),
+            color: const Color(0xFFFFB59C),
+          ),
+        ],
       ),
     );
   }
@@ -196,20 +312,33 @@ class _SudokuCellState extends State<SudokuCell> {
   @override
   Widget build(BuildContext context) {
     int number = control.grid[widget.i][widget.j][widget.k];
-    return ElevatedButton(
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         inputPageKey.currentState!.setState(() {
           InputPage.control_coords = [widget.i, widget.j, widget.k];
         });
       },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: ((InputPage.control_coords[0] == widget.i) &&
-                (InputPage.control_coords[1] == widget.j) &&
-                (InputPage.control_coords[2] == widget.k))
-            ? Colors.cyan
-            : null,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(2.0),
+          color: ((InputPage.control_coords[0] == widget.i) &&
+                  (InputPage.control_coords[1] == widget.j) &&
+                  (InputPage.control_coords[2] == widget.k))
+              ? const Color(0xFFFFB59C)
+              : const Color(0xFF9CFFC9),
+        ),
+        child: Center(
+          child: Text(
+            (number != 0) ? number.toString() : "",
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+          ),
+        ),
       ),
-      child: Text((number != 0) ? number.toString() : ""),
     );
   }
 }
@@ -232,3 +361,77 @@ List<int> translateCoords(int region, int index) {
 
   return [i, j, k];
 }
+
+// Create an elevated button for submitting the board or trying again.
+ElevatedButton submitButton(
+    {required VoidCallback onPressed,
+    required String text,
+    required Color bg}) {
+  return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+          backgroundColor: bg,
+          shape: RoundedRectangleBorder(
+              side: BorderSide.none,
+              // border radius
+              borderRadius: BorderRadius.circular(50))),
+      onPressed: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: 15.0,
+          bottom: 15.0,
+          left: 45,
+          right: 45,
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.5,
+          ),
+        ),
+      ));
+}
+
+Future openInfoDialog(
+        {String info_title = "Information",
+        required String details,
+        required BuildContext context}) =>
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(6.0))),
+          title: Center(
+            child: Text(
+              info_title,
+              style: const TextStyle(
+                color: Color(0xFFFFB59C),
+              ),
+            ),
+          ),
+          content: Text(
+            details,
+            style: const TextStyle(
+              color: Color(0xFF9CFFC9),
+            ),
+          ),
+          actions: [
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: const Color(0xFFFFB59C)),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Ok"),
+              ),
+            ),
+          ],
+          backgroundColor: const Color(0xFF1D1D1D),
+        );
+      },
+    );

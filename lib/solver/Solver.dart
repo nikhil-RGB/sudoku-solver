@@ -13,8 +13,8 @@ class Solver {
       solutionSet.removeAt(0);
       solutionSet.addAll(target.stepInto());
     }
-
-    throw UnsolvableBoardException("No solutions found!");
+    //return empty sudoku board when solving board is not possible.
+    return SudokuBoard.empty();
   }
 
   static SudokuBoard depthFirstSolve(SudokuBoard root) {
@@ -28,7 +28,7 @@ class Solver {
       solutionSet.removeAt(0);
       solutionSet.insertAll(0, target.stepInto());
     }
-
-    throw UnsolvableBoardException("No solutions found!");
+    //return empty sudoku board when solving is not possible
+    return SudokuBoard.empty();
   }
 }
