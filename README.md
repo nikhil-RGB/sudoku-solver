@@ -52,8 +52,8 @@ The app has three screens: a welcome screen, an input screen, and a solution scr
 The welcome screen is the first screen that the user sees when they open the app. It contains a welcome message and a button that takes the user to the input screen.
 
 #### Input Screen
-The input screen allows the user to enter the initial values of a Sudoku puzzle. The user can either enter the values manually or import a puzzle from a text file. Once the user has entered the values, they can click the "Solve" button to find the solution to the puzzle.
+The input screen allows the user to enter the initial values of a Sudoku puzzle. The user can input the values using the number panel provided at the bottom of the input screen. Once the user has entered the values, they can click the "Solve" button to find the solution to the puzzle. If the puzzle is unsolvable, the app will display an error message.
 
 #### Solution Screen
-The solution screen displays the solution to the Sudoku puzzle. If the puzzle is unsolvable, the app will display an error message.
+The solution screen displays the solution to the Sudoku puzzle, along with a button to take the user back to the input page to solve another puzzle.
 
