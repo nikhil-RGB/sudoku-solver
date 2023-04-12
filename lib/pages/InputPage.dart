@@ -7,9 +7,8 @@ import 'package:sudoku_solver/main.dart';
 import 'package:sudoku_solver/pages/SolverPage.dart';
 import 'package:sudoku_solver/solver/Solver.dart';
 import 'package:sudoku_solver/solver/SudokuBoard.dart';
-import 'package:sudoku_solver/util/Tester.dart';
 
-SudokuBoard control = SudokuBoard.fromConfig(grid: Tester.test_board);
+SudokuBoard control = SudokuBoard.empty();
 
 // ignore: must_be_immutable
 class InputPage extends StatefulWidget {
@@ -29,6 +28,7 @@ class InputPage extends StatefulWidget {
 }
 
 class InputPageState extends State<InputPage> {
+  bool solving = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,28 +53,40 @@ class InputPageState extends State<InputPage> {
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.025,
           ),
-          submitButton(
-              bg: const Color(0xFF9CFFC9),
-              onPressed: () async {
-                SudokuBoard soln = await compute<SudokuBoard, SudokuBoard>(
-                    Solver.depthFirstSolve, control);
-                if (!soln.isBoardFilled()) {
-                  // ignore: use_build_context_synchronously
-                  openInfoDialog(
-                      info_title: "Oops!",
-                      details:
-                          "The given Sudoku Board does not have any valid solutions- Please check the inputted numbers and try again.",
-                      context: context);
-                  return;
-                }
-                //Navigate to the solution page
-                // ignore: use_build_context_synchronously
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: ((context) => SolverPage(solution: soln))));
-              },
-              text: "Solve"),
+          (!solving)
+              ? submitButton(
+                  bg: const Color(0xFF9CFFC9),
+                  onPressed: () async {
+                    setState(() {
+                      solving = true;
+                    });
+                    SudokuBoard soln = await compute<SudokuBoard, SudokuBoard>(
+                        Solver.depthFirstSolve, control);
+
+                    setState(() {
+                      solving = false;
+                    });
+                    if (!soln.isBoardFilled()) {
+                      // ignore: use_build_context_synchronously
+                      openInfoDialog(
+                          info_title: "Oops!",
+                          details:
+                              "The given Sudoku Board does not have any valid solutions- Please check the inputted numbers and try again.",
+                          context: context);
+                      return;
+                    }
+                    //Navigate to the solution page
+                    // ignore: use_build_context_synchronously
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: ((context) =>
+                                SolverPage(solution: soln))));
+                  },
+                  text: "Solve")
+              : const CircularProgressIndicator(
+                  color: Color(0xFF9CFFC9),
+                ),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.04,
           ),
@@ -297,27 +309,30 @@ class _SudokuCellState extends State<SudokuCell> {
   @override
   Widget build(BuildContext context) {
     int number = control.grid[widget.i][widget.j][widget.k];
-    return ElevatedButton(
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         inputPageKey.currentState!.setState(() {
           InputPage.control_coords = [widget.i, widget.j, widget.k];
         });
       },
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.black,
-        backgroundColor: ((InputPage.control_coords[0] == widget.i) &&
-                (InputPage.control_coords[1] == widget.j) &&
-                (InputPage.control_coords[2] == widget.k))
-            ? const Color(0xFFFFB59C)
-            : const Color(0xFF9CFFC9),
-      ),
-      child: Center(
-        child: Text(
-          (number != 0) ? number.toString() : "",
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 15,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(2.0),
+          color: ((InputPage.control_coords[0] == widget.i) &&
+                  (InputPage.control_coords[1] == widget.j) &&
+                  (InputPage.control_coords[2] == widget.k))
+              ? const Color(0xFFFFB59C)
+              : const Color(0xFF9CFFC9),
+        ),
+        child: Center(
+          child: Text(
+            (number != 0) ? number.toString() : "",
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
           ),
         ),
       ),

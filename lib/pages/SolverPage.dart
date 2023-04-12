@@ -80,8 +80,8 @@ class _SolverPageState extends State<SolverPage> {
     int number = widget.solution.grid[i][j][k];
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
         color: const Color(0xFF9CFFC9),
+        borderRadius: BorderRadius.circular(2),
       ),
       child: Center(
           child: Text(
