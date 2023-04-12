@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sudoku_solver/pages/InputPage.dart';
-import 'package:sudoku_solver/pages/SolverPage.dart';
 
 final GlobalKey<InputPageState> inputPageKey = GlobalKey<InputPageState>();
 void main() {

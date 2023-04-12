@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sudoku_solver/main.dart';
 import 'package:sudoku_solver/pages/SolverPage.dart';
 import 'package:sudoku_solver/solver/Solver.dart';
@@ -14,6 +17,7 @@ class InputPage extends StatefulWidget {
   // static SudokuBoard control = SudokuBoard.empty(); //empty sudoku board
 
   const InputPage({required super.key});
+  // ignore: non_constant_identifier_names
   static List<int> control_coords = [
     0,
     0,
@@ -25,7 +29,6 @@ class InputPage extends StatefulWidget {
 }
 
 class InputPageState extends State<InputPage> {
-  bool solving = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,19 +49,22 @@ class InputPageState extends State<InputPage> {
             height: MediaQuery.of(context).size.height * 0.035,
           ),
           numberPanel(),
-        ],
-      ),
-      floatingActionButton: (!solving)
-          ? FloatingActionButton(
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.025,
+          ),
+          submitButton(
               onPressed: () async {
-                setState(() {
-                  solving = true;
-                });
                 SudokuBoard soln = await compute<SudokuBoard, SudokuBoard>(
                     Solver.depthFirstSolve, control);
-                setState(() {
-                  solving = false;
-                });
+                if (!soln.isBoardFilled()) {
+                  // ignore: use_build_context_synchronously
+                  openInfoDialog(
+                      info_title: "Yikes!",
+                      details:
+                          "The solver was unable to wrap it's head around this one- It seems this board does not have any valid solutions!",
+                      context: context);
+                  return;
+                }
                 //Navigate to the solution page
                 // ignore: use_build_context_synchronously
                 Navigator.push(
@@ -66,9 +72,33 @@ class InputPageState extends State<InputPage> {
                     MaterialPageRoute(
                         builder: ((context) => SolverPage(solution: soln))));
               },
-              child: const Icon(Icons.fast_forward_outlined),
-            )
-          : const CircularProgressIndicator(),
+              text: "Solve"),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.04,
+          ),
+        ],
+      ),
+      // floatingActionButton: (!solving)
+      //     ? FloatingActionButton(
+      // onPressed: () async {
+      //   setState(() {
+      //     solving = true;
+      //   });
+      //   SudokuBoard soln = await compute<SudokuBoard, SudokuBoard>(
+      //       Solver.depthFirstSolve, control);
+      //   setState(() {
+      //     solving = false;
+      //   });
+      //           //Navigate to the solution page
+      //           // ignore: use_build_context_synchronously
+      //           Navigator.push(
+      //               context,
+      //               MaterialPageRoute(
+      //                   builder: ((context) => SolverPage(solution: soln))));
+      //         },
+      //         child: const Icon(Icons.fast_forward_outlined),
+      //       )
+      //     : const CircularProgressIndicator(),
     );
   }
 
@@ -164,7 +194,7 @@ class InputPageState extends State<InputPage> {
     //       icon: const Icon(Icons.undo_outlined),
     //       label: const Text("Undo"),
     //     ));
-    return Container(
+    return SizedBox(
       // decoration: BoxDecoration(
       //   color: Colors.white,
       // ),
@@ -195,45 +225,49 @@ class InputPageState extends State<InputPage> {
             color: const Color(0xFF9CFFC9),
           ),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.22,
+            width: MediaQuery.of(context).size.width * 0.15,
           ),
           RichText(
             textAlign: TextAlign.center,
-            text: const TextSpan(children: [
+            text: TextSpan(children: [
               TextSpan(
                 text: "sudoku",
-                style: TextStyle(
+                style: GoogleFonts.josefinSans(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
                   letterSpacing: 3,
-                  color: Color(0xFF9CFFC9),
+                  color: const Color(0xFF9CFFC9),
                 ),
               ),
               TextSpan(
                 text: ".",
-                style: TextStyle(
+                style: GoogleFonts.josefinSans(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
                   letterSpacing: 3,
-                  color: Color(0xFFFFB59C),
+                  color: const Color(0xFFFFB59C),
                 ),
               ),
               TextSpan(
                 text: "solver",
-                style: TextStyle(
+                style: GoogleFonts.josefinSans(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
                   letterSpacing: 3,
-                  color: Color(0xFF9CFFC9),
+                  color: const Color(0xFF9CFFC9),
                 ),
               ),
             ]),
           ),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.22,
+            width: MediaQuery.of(context).size.width * 0.15,
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                control.formatBoard();
+              });
+            },
             icon: const Icon(Icons.restart_alt_outlined),
             color: const Color(0xFFFFB59C),
           ),
@@ -276,7 +310,11 @@ class _SudokuCellState extends State<SudokuCell> {
       child: Center(
         child: Text(
           (number != 0) ? number.toString() : "",
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
         ),
       ),
     );
@@ -301,3 +339,72 @@ List<int> translateCoords(int region, int index) {
 
   return [i, j, k];
 }
+
+// Create an elevated button for submitting the board or trying again.
+ElevatedButton submitButton({
+  required VoidCallback onPressed,
+  required String text,
+}) {
+  return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF9CFFC9),
+          shape: RoundedRectangleBorder(
+              side: BorderSide.none,
+              // border radius
+              borderRadius: BorderRadius.circular(50))),
+      onPressed: onPressed,
+      child: const Padding(
+        padding: EdgeInsets.only(
+          top: 15.0,
+          bottom: 15.0,
+          left: 45,
+          right: 45,
+        ),
+        child: Text(
+          "Solve",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.5,
+          ),
+        ),
+      ));
+}
+
+Future openInfoDialog(
+        {String info_title = "Information",
+        required String details,
+        required BuildContext context}) =>
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(6.0))),
+          title: Text(
+            info_title,
+            style: const TextStyle(
+              color: Color(0xFF9CFFC9),
+            ),
+          ),
+          content: Text(
+            details,
+            style: const TextStyle(
+              color: Color(0xFF9CFFC9),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFB59C)),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Ok"),
+            ),
+          ],
+          backgroundColor: Colors.grey.shade900,
+        );
+      },
+    );
