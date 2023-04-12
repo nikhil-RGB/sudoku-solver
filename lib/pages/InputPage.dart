@@ -80,8 +80,10 @@ class InputPageState extends State<InputPage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: ((context) =>
-                                SolverPage(solution: soln))));
+                            builder: ((context) => SolverPage(
+                                  solution: soln,
+                                  ogBoard: control,
+                                ))));
                   },
                   text: "Solve")
               : const CircularProgressIndicator(
@@ -281,6 +283,7 @@ class InputPageState extends State<InputPage> {
           IconButton(
             onPressed: () {
               setState(() {
+                InputPage.control_coords = [0, 0, 0];
                 control.formatBoard();
               });
             },

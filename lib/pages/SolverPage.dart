@@ -6,7 +6,8 @@ import 'package:sudoku_solver/solver/SudokuBoard.dart';
 
 class SolverPage extends StatefulWidget {
   final SudokuBoard solution;
-  const SolverPage({super.key, required this.solution});
+  final SudokuBoard ogBoard;
+  const SolverPage({super.key, required this.solution, required this.ogBoard});
 
   @override
   State<SolverPage> createState() => _SolverPageState();
@@ -77,6 +78,7 @@ class _SolverPageState extends State<SolverPage> {
     required int j,
     required int k,
   }) {
+    int ogNum = widget.ogBoard.grid[i][j][k];
     int number = widget.solution.grid[i][j][k];
     return Container(
       decoration: BoxDecoration(
@@ -86,9 +88,10 @@ class _SolverPageState extends State<SolverPage> {
       child: Center(
           child: Text(
         number.toString(),
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 15,
+          color: (ogNum == 0) ? const Color(0xFFFFB59C) : Colors.black,
         ),
       )),
     );
