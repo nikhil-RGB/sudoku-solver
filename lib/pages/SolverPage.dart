@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sudoku_solver/pages/InputPage.dart';
 
 import 'package:sudoku_solver/solver/SudokuBoard.dart';
@@ -15,24 +16,33 @@ class _SolverPageState extends State<SolverPage> {
   @override
   Widget build(BuildContext context) {
     // Tester.main();
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.2,
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.6,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: constructBoard(),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Column(
+          children: [
+            constructAppBar(),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.466,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.084,
+                  right: MediaQuery.of(context).size.width * 0.084,
+                ),
+                child: constructBoard(),
+              ),
             ),
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.01,
-          ),
-        ],
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.041,
+            ),
+            submitButton(
+                bg: const Color(0xFFFFB59C),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                text: "Another Puzzle"),
+          ],
+        ),
       ),
     );
   }
@@ -71,9 +81,74 @@ class _SolverPageState extends State<SolverPage> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        color: Colors.blue,
+        color: const Color(0xFF9CFFC9),
       ),
-      child: Center(child: Text(number.toString())),
+      child: Center(
+          child: Text(
+        number.toString(),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+        ),
+      )),
+    );
+  }
+
+  Widget constructAppBar() {
+    return Container(
+      margin: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height * 0.04,
+          bottom: MediaQuery.of(context).size.height * 0.04),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back),
+            color: const Color(0xFF9CFFC9),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.15,
+          ),
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(children: [
+              TextSpan(
+                text: "sudoku",
+                style: GoogleFonts.josefinSans(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  letterSpacing: 3,
+                  color: const Color(0xFF9CFFC9),
+                ),
+              ),
+              TextSpan(
+                text: ".",
+                style: GoogleFonts.josefinSans(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  letterSpacing: 3,
+                  color: const Color(0xFFFFB59C),
+                ),
+              ),
+              TextSpan(
+                text: "solver",
+                style: GoogleFonts.josefinSans(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  letterSpacing: 3,
+                  color: const Color(0xFF9CFFC9),
+                ),
+              ),
+            ]),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.25,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -40,8 +40,9 @@ class InputPageState extends State<InputPage> {
             height: MediaQuery.of(context).size.height * 0.466,
             child: Padding(
               padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.084,
-                  right: MediaQuery.of(context).size.width * 0.084),
+                left: MediaQuery.of(context).size.width * 0.084,
+                right: MediaQuery.of(context).size.width * 0.084,
+              ),
               child: constructBoard(),
             ),
           ),
@@ -53,15 +54,16 @@ class InputPageState extends State<InputPage> {
             height: MediaQuery.of(context).size.height * 0.025,
           ),
           submitButton(
+              bg: const Color(0xFF9CFFC9),
               onPressed: () async {
                 SudokuBoard soln = await compute<SudokuBoard, SudokuBoard>(
                     Solver.depthFirstSolve, control);
                 if (!soln.isBoardFilled()) {
                   // ignore: use_build_context_synchronously
                   openInfoDialog(
-                      info_title: "Yikes!",
+                      info_title: "Oops!",
                       details:
-                          "The solver was unable to wrap it's head around this one- It seems this board does not have any valid solutions!",
+                          "The given Sudoku Board does not have any valid solutions- Please check the inputted numbers and try again.",
                       context: context);
                   return;
                 }
@@ -220,7 +222,9 @@ class InputPageState extends State<InputPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+            },
             icon: const Icon(Icons.arrow_back),
             color: const Color(0xFF9CFFC9),
           ),
@@ -341,28 +345,28 @@ List<int> translateCoords(int region, int index) {
 }
 
 // Create an elevated button for submitting the board or trying again.
-ElevatedButton submitButton({
-  required VoidCallback onPressed,
-  required String text,
-}) {
+ElevatedButton submitButton(
+    {required VoidCallback onPressed,
+    required String text,
+    required Color bg}) {
   return ElevatedButton(
       style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF9CFFC9),
+          backgroundColor: bg,
           shape: RoundedRectangleBorder(
               side: BorderSide.none,
               // border radius
               borderRadius: BorderRadius.circular(50))),
       onPressed: onPressed,
-      child: const Padding(
-        padding: EdgeInsets.only(
+      child: Padding(
+        padding: const EdgeInsets.only(
           top: 15.0,
           bottom: 15.0,
           left: 45,
           right: 45,
         ),
         child: Text(
-          "Solve",
-          style: TextStyle(
+          text,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -382,10 +386,12 @@ Future openInfoDialog(
         return AlertDialog(
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(6.0))),
-          title: Text(
-            info_title,
-            style: const TextStyle(
-              color: Color(0xFF9CFFC9),
+          title: Center(
+            child: Text(
+              info_title,
+              style: const TextStyle(
+                color: Color(0xFFFFB59C),
+              ),
             ),
           ),
           content: Text(
@@ -395,16 +401,19 @@ Future openInfoDialog(
             ),
           ),
           actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFB59C)),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Ok"),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: const Color(0xFFFFB59C)),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Ok"),
+              ),
             ),
           ],
-          backgroundColor: Colors.grey.shade900,
+          backgroundColor: const Color(0xFF1D1D1D),
         );
       },
     );
